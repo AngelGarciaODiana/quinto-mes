@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestros Recuerdos ♥</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌙</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Poppins:wght@300;500&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --pink:    #ff4da6;
+            --rose:    #e8063e;
+            --soft:    #ffd6eb;
+            --dark:    #06000f;
+            --mid:     #1a0020;
+            --moon:    #ffe8b0;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--dark);
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* =============================================
+           MUSIC OVERLAY
+        ============================================= */
+        #overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(6, 0, 15, 0.97);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: opacity 1.2s ease;
+        }
+        #overlay .icon  { font-size: 5rem; animation: heartbeat 1.5s ease-in-out infinite; margin-bottom: 1rem; }
+        #overlay .title { font-size: 1.5rem; font-weight: bold; letter-spacing: 5px; text-shadow: 0 0 20px var(--pink); text-align: center; }
+        #overlay .sub   { color: var(--soft); font-size: 0.9rem; margin-top: 0.6rem; letter-spacing: 2px; opacity: 0.8; text-align: center; }
+        #overlay.gone   { opacity: 0; pointer-events: none; }
+
+        @keyframes heartbeat { 0%,100%{transform:scale(1);} 50%{transform:scale(1.25); filter:drop-shadow(0 0 14px var(--pink));} }
+
+        #bg-audio { display: none; }
+
+        /* =============================================
+           STARS
+        ============================================= */
+        #stars-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: #fff;
+            animation: twinkle ease-in-out infinite;
+        }
+        @keyframes twinkle { 0%,100%{opacity:.12; transform:scale(1);} 50%{opacity:1; transform:scale(1.5);} }
+
+        /* =============================================
+           FLOATING HEARTS
+        ============================================= */
+        .fheart {
+            position: fixed;
+            bottom: -40px;
+            pointer-events: none;
+            opacity: 0;
+            animation: floatHeart linear infinite;
+            z-index: 1;
+        }
+        @keyframes floatHeart {
+            0%  {transform:translateY(0) rotate(0deg) scale(1); opacity:0;}
+            10% {opacity:.75;}
+            85% {opacity:.25;}
+            100%{transform:translateY(-110vh) rotate(360deg) scale(.3); opacity:0;}
+        }
+
+        /* =============================================
+           HERO SECTION
+        ============================================= */
+        .hero {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 90px 20px 50px;
+        }
+        .hero__moon {
+            font-size: 5rem;
+            animation: moonFloat 6s ease-in-out infinite;
+            display: inline-block;
+            filter: drop-shadow(0 0 22px var(--moon));
+        }
+        @keyframes moonFloat { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-14px);} }
+
+        .hero__title {
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(2.4rem, 7vw, 4.5rem);
+            color: var(--soft);
+            text-shadow: 0 0 30px rgba(255,214,235,.5);
+            margin-top: 0.6rem;
+            line-height: 1.2;
+        }
+        .hero__sub {
+            font-size: .95rem;
+            color: rgba(255,214,235,.65);
+            letter-spacing: 4px;
+            margin-top: 0.8rem;
+        }
+
+        /* decorative line */
+        .hero::after {
+            content: '';
+            display: block;
+            width: 2px;
+            height: 60px;
+            background: linear-gradient(to bottom, var(--pink), transparent);
+            margin: 36px auto 0;
+        }
+
+        /* =============================================
+           TIMELINE
+        ============================================= */
+        .timeline {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+        }
+
+        /* Central spine */
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0; bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            background: linear-gradient(to bottom,
+                transparent,
+                var(--pink) 8%,
+                var(--pink) 92%,
+                transparent);
+        }
+
+        /* Each item */
+        .tl-item {
+            position: relative;
+            width: 46%;
+            margin-bottom: 70px;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity .7s ease, transform .7s ease;
+        }
+        .tl-item.visible { opacity: 1; transform: translateY(0); }
+
+        /* Alternating sides */
+        .tl-item:nth-child(odd)  { left: 0; text-align: right; }
+        .tl-item:nth-child(even) { left: 54%; text-align: left; }
+
+        /* Connector dot on spine */
+        .tl-item::after {
+            content: '♥';
+            position: absolute;
+            top: 50%;
+            font-size: .85rem;
+            color: var(--pink);
+            transform: translateY(-50%);
+            animation: heartbeat 2s ease-in-out infinite;
+            text-shadow: 0 0 12px var(--pink);
+        }
+        .tl-item:nth-child(odd)::after  { right: -14%; }
+        .tl-item:nth-child(even)::after { left: -14%; }
+
+        /* Photo card */
+        .tl-card {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow:
+                0 0 0 2px rgba(255,77,166,.3),
+                0 8px 32px rgba(0,0,0,.6);
+            transition: transform .4s ease, box-shadow .4s ease;
+            cursor: pointer;
+        }
+        .tl-card:hover {
+            transform: scale(1.04) translateY(-4px);
+            box-shadow:
+                0 0 0 2px var(--pink),
+                0 12px 48px rgba(255,77,166,.4);
+        }
+        .tl-card img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            display: block;
+            filter: saturate(1.1) contrast(1.05);
+        }
+        .tl-card__overlay {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: linear-gradient(to top, rgba(6,0,15,.85), transparent);
+            padding: 18px 14px 10px;
+        }
+        .tl-card__num {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.2rem;
+            color: var(--soft);
+            text-shadow: 0 0 10px var(--pink);
+            line-height: 1;
+        }
+        .tl-card__label {
+            font-size: .7rem;
+            color: rgba(255,214,235,.7);
+            letter-spacing: 3px;
+            margin-top: 2px;
+        }
+
+        /* =============================================
+           LIGHTBOX
+        ============================================= */
+        #lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(6,0,15,.93);
+            z-index: 8000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        #lightbox.open { display: flex; }
+        #lightbox img {
+            max-width: 90vw;
+            max-height: 80vh;
+            border-radius: 12px;
+            box-shadow: 0 0 60px rgba(255,77,166,.5);
+        }
+        #lb-close {
+            position: absolute;
+            top: 20px; right: 28px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--soft);
+            opacity: .7;
+            transition: opacity .2s;
+        }
+        #lb-close:hover { opacity: 1; }
+        #lb-prev, #lb-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2.4rem;
+            cursor: pointer;
+            color: var(--soft);
+            opacity: .6;
+            transition: opacity .2s;
+            user-select: none;
+            padding: 12px;
+        }
+        #lb-prev:hover, #lb-next:hover { opacity: 1; }
+        #lb-prev { left: 16px; }
+        #lb-next { right: 16px; }
+        #lb-num {
+            margin-top: 14px;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.3rem;
+            color: var(--soft);
+            opacity: .8;
+        }
+
+        /* =============================================
+           POEM SECTION
+        ============================================= */
+        .poem-section {
+            position: relative;
+            z-index: 2;
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 20px 28px 100px;
+            text-align: center;
+        }
+
+        .poem-section__header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 40px;
+        }
+        .poem-section__line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--pink));
+        }
+        .poem-section__line:last-child {
+            background: linear-gradient(to left, transparent, var(--pink));
+        }
+        .poem-section__title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2rem;
+            color: var(--soft);
+            white-space: nowrap;
+        }
+
+        .poem-moon {
+            font-size: 3.5rem;
+            display: block;
+            margin: 0 auto 28px;
+            animation: moonFloat 6s ease-in-out infinite;
+            filter: drop-shadow(0 0 16px var(--moon));
+        }
+
+        .poem-body {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: clamp(.95rem, 2.5vw, 1.12rem);
+            line-height: 2;
+            color: rgba(255, 240, 250, .92);
+            text-shadow: 0 1px 8px rgba(0,0,0,.4);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s ease, transform 1s ease;
+            white-space: pre-line;
+        }
+        .poem-body.visible { opacity: 1; transform: translateY(0); }
+
+        .poem-body .stanza { margin-bottom: 1.8em; }
+
+        .poem-body .highlight {
+            color: var(--moon);
+            font-weight: 700;
+            font-style: normal;
+            text-shadow: 0 0 18px rgba(255,232,176,.6);
+        }
+
+        /* final line special */
+        .poem-body .final {
+            font-size: 1.18em;
+            color: var(--pink);
+            font-style: normal;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 0 20px rgba(255,77,166,.7);
+            display: inline-block;
+            margin-top: 0.4em;
+        }
+
+        /* =============================================
+           BACK BUTTON
+        ============================================= */
+        .back-btn {
+            display: block;
+            text-align: center;
+            margin: 0 auto 60px;
+            width: fit-content;
+            padding: 12px 36px;
+            border: 2px solid var(--pink);
+            border-radius: 50px;
+            color: var(--soft);
+            text-decoration: none;
+            font-size: .9rem;
+            letter-spacing: 3px;
+            position: relative;
+            z-index: 2;
+            transition: background .3s, color .3s, box-shadow .3s;
+        }
+        .back-btn:hover {
+            background: var(--pink);
+            color: #fff;
+            box-shadow: 0 0 28px rgba(255,77,166,.6);
+        }
+
+        /* =============================================
+           RESPONSIVE
+        ============================================= */
+        @media (max-width: 650px) {
+            .timeline::before { left: 18px; }
+
+            .tl-item { width: 80%; left: 12% !important; text-align: left !important; }
+
+            .tl-item::after { left: -12% !important; right: auto !important; }
+
+            .tl-card img { height: 200px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============= OVERLAY ============= -->
+    <div id="overlay" onclick="startExperience()">
+        <div class="icon">🌙</div>
+        <p class="title">TOCA PARA COMENZAR</p>
+        <p class="sub">nuestros recuerdos ♥</p>
+    </div>
+
+    <!-- ============= AUDIO ============= -->
+    <audio id="bg-audio" loop>
+        <source src="sound/ven_que_te_quiero_ver.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- ============= STARS ============= -->
+    <div id="stars-layer"></div>
+
+    <!-- ============= HERO ============= -->
+    <section class="hero">
+        <span class="hero__moon">🌙</span>
+        <h1 class="hero__title">Nuestros Recuerdos</h1>
+        <p class="hero__sub">8 MOMENTOS QUE GUARDO EN EL CORAZÓN</p>
+    </section>
+
+    <!-- ============= TIMELINE ============= -->
+    <section class="timeline" id="timeline">
+
+        <div class="tl-item">
+            <div class="tl-card" onclick="openLightbox(0)">
+                <img src="img/01.jpg" alt="Foto 01" loading="lazy">
+                <div class="tl-card__overlay">
+                    <div class="tl-card__num">01</div>
+                    <div class="tl-card__label">PRIMER RECUERDO</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tl-item">
+            <div class="tl-card" onclick="openLightbox(1)">
+                <img src="img/02.jpg" alt="Foto 02" loading="lazy">
+                <div class="tl-card__overlay">
+                    <div class="tl-card__num">02</div>
+                    <div class="tl-card__label">UN MOMENTO NUESTRO</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tl-item">
+            <div class="tl-card" onclick="openLightbox(2)">
+                <img src="img/03.jpeg" alt="Foto 03" loading="lazy">
+                <div class="tl-card__overlay">
+                    <div class="tl-card__num">03</div>
+                    <div class="tl-card__label">LO QUE MÁS VALORO</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tl-item">
+            <div class="tl-card" onclick="openLightbox(3)">
+                <img src="img/04.jpg" alt="Foto 04" loading="lazy">
+                <div class="tl-card__overlay">
+                    <div class="tl-card__num">04</div>
+                    <div class="tl-card__label">JUNTOS</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tl-item">
+            <div class="tl-card" onclick="openLightbox(4)">
+                <img src="img/05.jpg" alt="Foto 05" loading="lazy">
+                <div class="tl-card__overlay">
+                    <div class="tl-card__num">05</div>
+                    <div class="tl-card__label">MI FAVORITA</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tl-item">
+            <div class="tl-card" onclick="openLightbox(5)">
+                <img src="img/06.jpg" alt="Foto 06" loading="lazy">
+                <div class="tl-card__overlay">
+                    <div class="tl-card__num">06</div>
+                    <div class="tl-card__label">TÚ Y YO</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tl-item">
+            <div class="tl-card" onclick="openLightbox(6)">
+                <img src="img/07.jpeg" alt="Foto 07" loading="lazy">
+                <div class="tl-card__overlay">
+                    <div class="tl-card__num">07</div>
+                    <div class="tl-card__label">MOMENTOS ASÍ</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tl-item">
+            <div class="tl-card" onclick="openLightbox(7)">
+                <img src="img/08.jpg" alt="Foto 08" loading="lazy">
+                <div class="tl-card__overlay">
+                    <div class="tl-card__num">08</div>
+                    <div class="tl-card__label">Y QUE VENGAN MÁS</div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ============= LIGHTBOX ============= -->
+    <div id="lightbox">
+        <span id="lb-close" onclick="closeLightbox()">✕</span>
+        <span id="lb-prev" onclick="lbNav(-1)">&#8249;</span>
+        <img id="lb-img" src="" alt="">
+        <span id="lb-next" onclick="lbNav(1)">&#8250;</span>
+        <div id="lb-num"></div>
+    </div>
+
+    <!-- ============= POEM ============= -->
+    <section class="poem-section">
+        <div class="poem-section__header">
+            <div class="poem-section__line"></div>
+            <h2 class="poem-section__title">Un poema para ti</h2>
+            <div class="poem-section__line"></div>
+        </div>
+
+        <span class="poem-moon">🌙</span>
+
+        <div class="poem-body" id="poem">
+<div class="stanza">La luna y tú tienen cosas en común.<br>
+La luna me encanta<br>
+y tú también,<br>
+la luna brilla con una intensidad admirable,<br>
+igual que tú,<br>
+la luna tiene la capacidad de iluminar un mundo entero<br>
+y <span class="highlight">tú iluminas mi mundo</span>.</div>
+
+<div class="stanza">Yo admiro a la luna<br>
+pero definitivamente no la puedo alcanzar,<br>
+igual que a ti.<br>
+Te admiro, te aprecio,<br>
+pero no te puedo alcanzar.<br>
+Esta noche estás muy lejos,<br>
+igual que la noche de ayer<br>
+y la noche de mañana.</div>
+
+<div class="stanza">La luna y tú tienen cosas en común,<br>
+solo que a ella la veo todas las noches,<br>
+pero <span class="highlight">tú te escondes</span>.</div>
+
+<div class="stanza">Te amo tal y como amo a la luna,<br>
+o, tal vez, no...<br>
+A ti te amo con la intensidad de su brillo,<br>
+con ese brillo que jamás se irá,<br>
+que permanecerá iluminando las noches con esa intensidad.<br>
+<span class="highlight">Te amo así</span>,<br>
+con esa misma intensidad que jamás se irá.</div>
+
+<div class="stanza"><span class="final">Así que la luna y tú tienen cosas en común...</span></div>
+        </div>
+    </section>
+
+    <!-- ============= BACK ============= -->
+    <a href="amor.html" class="back-btn">← VOLVER</a>
+
+    <!-- ============= SCRIPTS ============= -->
+    <script>
+        // ---- Stars ----
+        var sl = document.getElementById('stars-layer');
+        for (var i = 0; i < 70; i++) {
+            var s = document.createElement('div');
+            s.className = 'star';
+            var sz = 1 + Math.random() * 2.2;
+            s.style.cssText = 'width:'+sz+'px;height:'+sz+'px;top:'+(Math.random()*100)+'%;left:'+(Math.random()*100)+'%;animation-duration:'+(2+Math.random()*4)+'s;animation-delay:'+(Math.random()*6)+'s';
+            sl.appendChild(s);
+        }
+
+        // ---- Floating hearts ----
+        var hColors = ['#ff4da6','#ff85c2','#ffb3d9','#ffd6eb','#e8063e'];
+        var hEmoji  = ['♥','❤','💗','💕','💖','🌹','🌙'];
+        for (var j = 0; j < 18; j++) {
+            var h = document.createElement('div');
+            h.className = 'fheart';
+            h.style.left              = Math.random()*100+'%';
+            h.style.fontSize          = (0.6+Math.random()*1.2)+'rem';
+            h.style.color             = hColors[Math.floor(Math.random()*hColors.length)];
+            h.style.animationDuration = (9+Math.random()*13)+'s';
+            h.style.animationDelay    = (Math.random()*14)+'s';
+            h.textContent             = hEmoji[Math.floor(Math.random()*hEmoji.length)];
+            document.body.appendChild(h);
+        }
+
+        // ---- Start experience ----
+        function startExperience() {
+            document.getElementById('bg-audio').play();
+            var ov = document.getElementById('overlay');
+            ov.classList.add('gone');
+            setTimeout(function(){ ov.style.display='none'; }, 1300);
+        }
+
+        // ---- Scroll reveal for timeline items ----
+        var items = document.querySelectorAll('.tl-item');
+        var poem  = document.getElementById('poem');
+
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    observer.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.18 });
+
+        items.forEach(function(item) { observer.observe(item); });
+        observer.observe(poem);
+
+        // ---- Lightbox ----
+        var photos = [
+            { src: 'img/01.jpg',  num: '01 / 08' },
+            { src: 'img/02.jpg',  num: '02 / 08' },
+            { src: 'img/03.jpeg', num: '03 / 08' },
+            { src: 'img/04.jpg',  num: '04 / 08' },
+            { src: 'img/05.jpg',  num: '05 / 08' },
+            { src: 'img/06.jpg',  num: '06 / 08' },
+            { src: 'img/07.jpeg', num: '07 / 08' },
+            { src: 'img/08.jpg',  num: '08 / 08' }
+        ];
+        var lbCurrent = 0;
+
+        function openLightbox(idx) {
+            lbCurrent = idx;
+            var lb = document.getElementById('lightbox');
+            document.getElementById('lb-img').src = photos[idx].src;
+            document.getElementById('lb-num').textContent = photos[idx].num;
+            lb.classList.add('open');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('open');
+        }
+
+        function lbNav(dir) {
+            lbCurrent = (lbCurrent + dir + photos.length) % photos.length;
+            document.getElementById('lb-img').src = photos[lbCurrent].src;
+            document.getElementById('lb-num').textContent = photos[lbCurrent].num;
+        }
+
+        // close lightbox on background click
+        document.getElementById('lightbox').addEventListener('click', function(e) {
+            if (e.target === this) closeLightbox();
+        });
+
+        // keyboard nav
+        document.addEventListener('keydown', function(e) {
+            var lb = document.getElementById('lightbox');
+            if (!lb.classList.contains('open')) return;
+            if (e.key === 'Escape')     closeLightbox();
+            if (e.key === 'ArrowRight') lbNav(1);
+            if (e.key === 'ArrowLeft')  lbNav(-1);
+        });
+    </script>
+</body>
+</html>

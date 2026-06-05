@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5 Meses Contigo ♥</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💗</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;1,900&family=Dancing+Script:wght@700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #06000f;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* ===== FLOATING HEARTS BACKGROUND ===== */
+        .hearts-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .heart-particle {
+            position: absolute;
+            bottom: -50px;
+            animation: floatUp linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes floatUp {
+            0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 0; }
+            10%  { opacity: 0.85; }
+            85%  { opacity: 0.3; }
+            100% { transform: translateY(-115vh) rotate(400deg) scale(0.4); opacity: 0; }
+        }
+
+        /* ===== BIG "5" ===== */
+        .big-number {
+            font-family: 'Dancing Script', cursive;
+            font-size: 13rem;
+            color: transparent;
+            -webkit-text-stroke: 3px #ff4da6;
+            text-shadow:
+                0 0 30px rgba(255, 77, 166, 0.5),
+                0 0 80px rgba(255, 77, 166, 0.3);
+            animation: pulseNum 3s ease-in-out infinite;
+            position: relative;
+            z-index: 2;
+            line-height: 1;
+        }
+
+        @keyframes pulseNum {
+            0%, 100% {
+                text-shadow:
+                    0 0 30px rgba(255, 77, 166, 0.5),
+                    0 0 80px rgba(255, 77, 166, 0.3);
+            }
+            50% {
+                text-shadow:
+                    0 0 60px rgba(255, 77, 166, 0.95),
+                    0 0 130px rgba(255, 77, 166, 0.65),
+                    0 0 220px rgba(255, 77, 166, 0.3);
+            }
+        }
+
+        /* ===== GREETING "MESES ♥" ===== */
+        .greeting {
+            font-size: 3.5rem;
+            font-weight: 900;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            margin-top: -0.8rem;
+            letter-spacing: 0.1em;
+        }
+
+        .greeting span {
+            animation: glowPink 2.5s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        @keyframes glowPink {
+            0%, 100% {
+                color: #fff;
+                text-shadow: 0 0 12px #ff4da6, 0 0 50px #ff4da6, 0 0 100px #ff4da6;
+            }
+            10%, 90% { color: #1a0010; text-shadow: none; }
+        }
+
+        .greeting span:nth-child(1) { animation-delay: 0s; }
+        .greeting span:nth-child(2) { animation-delay: .18s; }
+        .greeting span:nth-child(3) { animation-delay: .36s; }
+        .greeting span:nth-child(4) { animation-delay: .54s; }
+        .greeting span:nth-child(5) { animation-delay: .72s; }
+        .greeting span:nth-child(6) { animation-delay: .90s; }
+        .greeting span:nth-child(7) { animation-delay: 1.08s; }
+
+        /* ===== SUBTITLE ===== */
+        .subtitle {
+            font-size: 1.1rem;
+            color: #ffb3d9;
+            text-align: center;
+            margin-top: 1rem;
+            letter-spacing: 3px;
+            line-height: 1.8;
+            position: relative;
+            z-index: 2;
+            animation: fadeInUp 2s 1.5s ease-in-out both;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== BUTTON ===== */
+        .btn-wrapper {
+            margin-top: 2.5rem;
+            position: relative;
+            z-index: 2;
+            animation: fadeInUp 2s 2.8s ease-in-out both;
+        }
+
+        .btn {
+            padding: 14px 44px;
+            background: linear-gradient(135deg, #ff4da6, #e8063e);
+            border: none;
+            border-radius: 50px;
+            color: #fff;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            letter-spacing: 2px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow:
+                0 0 25px rgba(255, 77, 166, 0.5),
+                0 0 70px rgba(255, 77, 166, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            box-shadow:
+                0 0 40px rgba(255, 77, 166, 0.9),
+                0 0 100px rgba(255, 77, 166, 0.5);
+            transform: scale(1.07);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .big-number  { font-size: 8rem; }
+            .greeting    { font-size: 2.2rem; }
+            .subtitle    { font-size: 0.9rem; letter-spacing: 2px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hearts-bg" id="heartsBg"></div>
+
+    <div class="big-number">5</div>
+
+    <div class="greeting">
+        <span>M</span><span>E</span><span>S</span><span>E</span><span>S</span>&nbsp;<span>♥</span>
+    </div>
+
+    <div class="subtitle">
+        LLEGAMOS AL QUINTO MES<br>
+        ESTE DETALLE ES PARA TI
+    </div>
+
+    <div class="btn-wrapper">
+        <a href="amor.html" class="btn">HAZ CLICK AQUÍ</a>
+    </div>
+
+    <script>
+        var colors  = ['#ff4da6','#ff85c2','#ff1a7a','#ffb3d9','#ff6699','#e8063e','#ffd6eb'];
+        var emojis  = ['♥','❤','💕','💗','💓','💞','💖','🌹'];
+        var bg      = document.getElementById('heartsBg');
+
+        for (var i = 0; i < 28; i++) {
+            var h = document.createElement('div');
+            h.className = 'heart-particle';
+            h.style.left             = Math.random() * 100 + '%';
+            h.style.fontSize         = (0.7 + Math.random() * 1.5) + 'rem';
+            h.style.color            = colors[Math.floor(Math.random() * colors.length)];
+            h.style.animationDuration = (7 + Math.random() * 11) + 's';
+            h.style.animationDelay   = (Math.random() * 10) + 's';
+            h.textContent            = emojis[Math.floor(Math.random() * emojis.length)];
+            bg.appendChild(h);
+        }
+    </script>
+</body>
+</html>
